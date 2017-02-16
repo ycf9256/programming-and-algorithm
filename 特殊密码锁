@@ -1,0 +1,71 @@
+#include <cstdio>
+#include <iostream>
+#include <algorithm>
+#include <cstring>
+using namespace std;
+
+int oriLock;
+int Lock;
+int destLock;
+
+inline void setBits(int &n, int i, int k)
+{
+	if (k)
+		n |= (1 << i);
+	else
+		n &= ~(1 << i);
+}
+
+inline void Flip(int &n, int i)
+{
+	n ^= (1 << i);
+}
+
+inline int GetBits(int n, int i)
+{
+	return (n >> i) & 1;
+}
+
+int main()
+{
+	char line[40];
+	destLock = Lock = oriLock = 0;
+	cin >> line;
+	int N = strlen(line);
+	for (int i = 0; i < N; i++){
+		setBits(oriLock, i, line[i] - '0');
+	}
+	cin >> line;
+	for (int i = 0; i < N; i++){
+		setBits(destLock, i, line[i] - '0');
+	}
+	int minTimes = 1 << 30;
+
+	for (int p = 0; p < 2; p++){
+		Lock = oriLock;			//每种情况，Lock都要恢复初始状态
+		int times = 0;
+		int curButton = p;
+		for (int i = 0; i < N; i++){
+			if (curButton){
+				times++;
+				if (i>0)
+					Flip(Lock, i - 1);
+				Flip(Lock, i);
+				if (i < N - 1)
+					Flip(Lock, i + 1);
+			}
+			if (GetBits(Lock, i) != GetBits(destLock, i))
+				curButton = 1;
+			else
+				curButton = 0;
+			if (Lock == destLock)
+				minTimes = min(minTimes, times);			
+		}
+	}
+	if (minTimes == 1 << 30)
+		cout << "impossible" << endl;
+	else
+		cout << "min times is " << minTimes << endl;
+	system("pause");
+	return 0;
+}
